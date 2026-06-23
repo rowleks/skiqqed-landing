@@ -28,41 +28,52 @@ const countNote = document.getElementById('count-note');
 let base = parseInt(localStorage.getItem('skiqqed_waitlist_v2') || '1022', 10);
 countNote.textContent = base.toLocaleString() + '+';
 
-form.addEventListener('submit', (e) => {
+form.addEventListener('submit', async (e) => {
   e.preventDefault();
   const v = (email.value || '').trim();
+  
   if (!/^[^@\s]+@[^@\s]+\.[^@\s]+$/.test(v)) {
     email.focus();
     email.style.outline = '2px solid #F2622B';
     return;
   }
   
-  // TODO: SendGrid Integration
-  // When ready to integrate SendGrid:
-  // 1. Set up a backend endpoint (Node.js, Python, etc.) to handle email submissions
-  // 2. Use SendGrid API to store emails in your contact list
-  // 3. Replace the localStorage logic below with an API call
-  // 
-  // Example backend endpoint structure:
-  // POST /api/waitlist
-  // Body: { email: string }
-  // Response: { success: boolean, message: string }
-  //
-  // SendGrid API example (Node.js):
-  // const sgMail = require('@sendgrid/mail');
-  // sgMail.setApiKey(process.env.SENDGRID_API_KEY);
-  // await sgMail.send({
-  //   to: email,
-  //   from: 'noreply@skiqqed.com',
-  //   subject: 'Welcome to SKIQQED Waitlist',
-  //   text: 'Thanks for joining!'
-  // });
+  // Reset outline
+  email.style.outline = 'none';
   
-  const list = JSON.parse(localStorage.getItem('skiqqed_emails') || '[]');
-  if (!list.includes(v)) {
-    list.push(v);
-    localStorage.setItem('skiqqed_emails', JSON.stringify(list));
-    localStorage.setItem('skiqqed_waitlist_v2', String(base + 1));
+  // Disable button during submission
+  const button = form.querySelector('button');
+  const originalText = button.innerHTML;
+  button.disabled = true;
+  button.innerHTML = 'Submitting...';
+  
+  try {
+    // Call Netlify serverless function
+    const response = await fetch('/.netlify/functions/submit-email', {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+      },
+      body: JSON.stringify({ email: v }),
+    });
+    
+    const data = await response.json();
+    
+    if (data.success) {
+      // Update local waitlist count for display
+      localStorage.setItem('skiqqed_waitlist_v2', String(base + 1));
+      countNote.textContent = (base + 1).toLocaleString() + '+';
+      signup.classList.add('done');
+    } else {
+      // Show error
+      alert(data.message || 'Failed to add email. Please try again.');
+      button.disabled = false;
+      button.innerHTML = originalText;
+    }
+  } catch (error) {
+    console.error('Submission error:', error);
+    alert('Something went wrong. Please try again.');
+    button.disabled = false;
+    button.innerHTML = originalText;
   }
-  signup.classList.add('done');
 });

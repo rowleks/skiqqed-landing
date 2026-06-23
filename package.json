@@ -1,0 +1,15 @@
+{
+  "name": "skiqqed-landing",
+  "version": "1.0.0",
+  "description": "SKIQQED Landing Page with Resend Email Integration",
+  "scripts": {
+    "dev": "netlify dev",
+    "build": "netlify build"
+  },
+  "dependencies": {
+    "resend": "^3.2.0"
+  },
+  "devDependencies": {
+    "netlify-cli": "^17.0.0"
+  }
+}
