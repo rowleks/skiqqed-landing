@@ -23,10 +23,34 @@ const form = document.getElementById('form');
 const signup = document.getElementById('signup');
 const email = document.getElementById('email');
 const countNote = document.getElementById('count-note');
+const modal = document.getElementById('modal');
+const modalIcon = document.getElementById('modal-icon');
+const modalTitle = document.getElementById('modal-title');
+const modalMessage = document.getElementById('modal-message');
+const modalClose = document.getElementById('modal-close');
 
 // persist a friendly waitlist count
 let base = parseInt(localStorage.getItem('skiqqed_waitlist_v2') || '1022', 10);
 countNote.textContent = base.toLocaleString() + '+';
+
+// Modal functions
+function showModal(type, title, message) {
+  modalIcon.className = 'modal-icon ' + type;
+  modalIcon.textContent = type === 'success' ? '✓' : '✕';
+  modalTitle.textContent = title;
+  modalMessage.textContent = message;
+  modal.showModal();
+}
+
+modalClose.addEventListener('click', () => {
+  modal.close();
+});
+
+modal.addEventListener('click', (e) => {
+  if (e.target === modal) {
+    modal.close();
+  }
+});
 
 form.addEventListener('submit', async (e) => {
   e.preventDefault();
@@ -64,15 +88,15 @@ form.addEventListener('submit', async (e) => {
       localStorage.setItem('skiqqed_waitlist_v2', String(base + 1));
       countNote.textContent = (base + 1).toLocaleString() + '+';
       signup.classList.add('done');
+      showModal('success', 'You\'re on the list! 🎉', 'We\'ll email you the moment SKIQQED goes live. Get ready to find your first opportunity.');
     } else {
-      // Show error
-      alert(data.message || 'Failed to add email. Please try again.');
+      showModal('error', 'Submission Failed', data.message || 'Failed to add email. Please try again.');
       button.disabled = false;
       button.innerHTML = originalText;
     }
   } catch (error) {
     console.error('Submission error:', error);
-    alert('Something went wrong. Please try again.');
+    showModal('error', 'Something went wrong', 'Please check your connection and try again.');
     button.disabled = false;
     button.innerHTML = originalText;
   }

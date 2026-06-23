@@ -467,3 +467,74 @@ h1.headline em {
     font-size: 27px;
   }
 }
+
+/* Modal Dialog */
+.modal {
+  border: none;
+  border-radius: 16px;
+  padding: 0;
+  background: var(--card);
+  color: var(--ink);
+  box-shadow: 0 24px 50px -22px rgba(0, 0, 0, 0.6);
+  max-width: 400px;
+  width: 90%;
+}
+
+.modal::backdrop {
+  background: rgba(20, 19, 14, 0.8);
+  backdrop-filter: blur(4px);
+}
+
+.modal-content {
+  padding: 32px;
+  text-align: center;
+}
+
+.modal-icon {
+  width: 56px;
+  height: 56px;
+  border-radius: 50%;
+  display: grid;
+  place-items: center;
+  margin: 0 auto 20px;
+  font-size: 28px;
+}
+
+.modal-icon.success {
+  background: var(--accent);
+  color: var(--ink);
+}
+
+.modal-icon.error {
+  background: var(--voc);
+  color: var(--paper);
+}
+
+.modal h3 {
+  font-size: 22px;
+  margin-bottom: 12px;
+  color: var(--ink);
+}
+
+.modal p {
+  font-size: 15px;
+  color: var(--ink2);
+  line-height: 1.5;
+  margin-bottom: 24px;
+}
+
+.modal-close {
+  background: var(--ink);
+  color: var(--paper);
+  font-weight: 600;
+  font-size: 15px;
+  padding: 12px 28px;
+  border-radius: 999px;
+  cursor: pointer;
+  transition: transform 0.15s, background 0.15s;
+}
+
+.modal-close:hover {
+  transform: translateY(-1px);
+  background: var(--ink2);
+}
