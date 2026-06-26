@@ -1,14 +1,14 @@
-const { Resend } = require('resend');
+const { Resend } = require("resend");
 
 // Initialize Resend with API key from environment variable
 const resend = new Resend(process.env.RESEND_API_KEY);
 
 exports.handler = async (event, _context) => {
   // Only allow POST requests
-  if (event.httpMethod !== 'POST') {
+  if (event.httpMethod !== "POST") {
     return {
       statusCode: 405,
-      body: JSON.stringify({ message: 'Method not allowed' }),
+      body: JSON.stringify({ message: "Method not allowed" }),
     };
   }
 
@@ -19,15 +19,18 @@ exports.handler = async (event, _context) => {
     if (!email || !/^[^@\s]+@[^@\s]+\.[^@\s]+$/.test(email)) {
       return {
         statusCode: 400,
-        body: JSON.stringify({ success: false, message: 'Invalid email address' }),
+        body: JSON.stringify({
+          success: false,
+          message: "Invalid email address",
+        }),
       };
     }
 
     // Send welcome email using Resend
     const data = await resend.emails.send({
-      from: 'SKIQQED <noreply@resend.dev>',
+      from: "SKIQQED <hello@skiqqed.com>",
       to: [email],
-      subject: 'Welcome to SKIQQED Waitlist',
+      subject: "Welcome to SKIQQED Waitlist",
       html: `
         <div style="font-family: Arial, sans-serif; max-width: 600px; margin: 0 auto; padding: 20px;">
           <h2 style="color: #14130E;">You're on the list! 🎉</h2>
@@ -58,24 +61,46 @@ exports.handler = async (event, _context) => {
       `,
     });
 
-    console.log('Email sent successfully:', data);
+    // console.log("Welcome email sent successfully:", data);
+
+    // Send admin notification to hello@skiqqed.com
+    await resend.emails.send({
+      from: "SKIQQED <hello@skiqqed.com>",
+      to: ["hello@skiqqed.com"],
+      subject: "New Waitlist Signup",
+      html: `
+        <div style="font-family: Arial, sans-serif; max-width: 600px; margin: 0 auto; padding: 20px;">
+          <h2 style="color: #14130E;">New Waitlist Signup</h2>
+          <p style="color: #3A372C; line-height: 1.6;">
+            A new user has joined the SKIQQED waitlist:
+          </p>
+          <div style="background: #C8F23B; padding: 15px; border-radius: 8px; margin: 20px 0;">
+            <p style="color: #14130E; margin: 0; font-weight: bold; font-size: 18px;">
+              ${email}
+            </p>
+          </div>
+        </div>
+      `,
+    });
+
+    // console.log("Admin notification sent successfully:", adminData);
 
     return {
       statusCode: 200,
-      body: JSON.stringify({ 
-        success: true, 
-        message: 'Email added to waitlist',
-        data 
+      body: JSON.stringify({
+        success: true,
+        message: "Email added to waitlist",
+        data,
       }),
     };
   } catch (error) {
-    console.error('Error sending email:', error);
+    console.error("Error sending email:", error);
     return {
       statusCode: 500,
-      body: JSON.stringify({ 
-        success: false, 
-        message: 'Failed to add email to waitlist',
-        error: error.message 
+      body: JSON.stringify({
+        success: false,
+        message: "Failed to add email to waitlist",
+        error: error.message,
       }),
     };
   }
